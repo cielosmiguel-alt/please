@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Question for you</title>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyANvNUM_DGQeJqUdMHNpX_gD2yAGQVYl-Q&libraries=places&callback=initMap"></script>
+    <script defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyANvNUM_DGQeJqUdMHNpX_gD2yAGQVYl-Q&libraries=places&callback=initMap"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
         * { box-sizing: border-box; }
@@ -144,7 +144,7 @@
         }
 
         #submit-btn {
-            display: none;
+            display: none !important;
             padding: 15px 30px;
             margin: 20px 10px 10px;
             border: none;
@@ -207,8 +207,10 @@
     <button id="submit-btn" onclick="submitForm()">Send it to me! 💕</button>
 
     <script>
-        // Initialize EmailJS
-        emailjs.init("P2XpI_8SYcNChNB_6");
+        // Initialize EmailJS when page loads
+        window.onload = function() {
+            emailjs.init("P2XpI_8SYcNChNB_6");
+        };
 
         let noCount = 0;
         let dodgeCount = 0;
@@ -277,7 +279,7 @@
 
                 selectedPlaceName = place.name;
                 document.getElementById('selected-place').innerHTML = 
-                    `📍 ${place.name}<br> ${selectedActivity ? 'Activity: ' + selectedActivity : ''}`;
+                    `📍 ${place.name}<br>🎯 ${selectedActivity ? 'Activity: ' + selectedActivity : ''}`;
             });
         }
 
@@ -296,7 +298,7 @@
             
             if (selectedPlaceName) {
                 document.getElementById('selected-place').innerHTML = 
-                    `📍 ${selectedPlaceName}<br>Activity: ${activityNames[activity]}`;
+                    `📍 ${selectedPlaceName}<br>🎯 Activity: ${activityNames[activity]}`;
             }
         }
 
@@ -381,12 +383,12 @@
 
             emailjs.send('service_0wfrgyg', 'template_4okig0b', templateParams)
                 .then(function() {
-                    submitBtn.textContent = "Sent!";
+                    submitBtn.textContent = "Sent! 💕";
                     submitBtn.style.background = "#4CAF50";
                     document.getElementById('result').innerHTML = 
                         "Thank you! I received your response! 💕";
                     setTimeout(() => {
-                        submitBtn.textContent = "Sind mona";
+                        submitBtn.textContent = "Send it to me! 💕";
                         submitBtn.disabled = false;
                         submitBtn.style.background = "#FF6B9D";
                     }, 3000);
@@ -395,7 +397,7 @@
                     submitBtn.textContent = "Failed to send";
                     submitBtn.style.background = "#f44336";
                     setTimeout(() => {
-                        submitBtn.textContent = "Sind mona";
+                        submitBtn.textContent = "Send it to me! 💕";
                         submitBtn.disabled = false;
                         submitBtn.style.background = "#FF6B9D";
                     }, 3000);
