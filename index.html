@@ -21,6 +21,10 @@
             transition: background 0.1s ease;
             overflow-y: auto;
         }
+
+        * {
+            box-sizing: border-box;
+        }
         h1 { color: #4a2545; font-size: 2.2em; padding: 0 10px; }
         .btn {
             padding: 15px 30px;
@@ -164,13 +168,13 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
-            min-height: 400px;
         }
 
         .input-group {
             display: flex;
             flex-direction: column;
             gap: 8px;
+            text-align: left;
         }
 
         .input-group label {
@@ -193,22 +197,30 @@
 
         #activity-section {
             text-align: center;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 25px;
             border-radius: 15px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 2px solid #ee9ca7;
+        }
+
+        #activity-section h3 {
+            color: #4a2545;
+            margin-bottom: 20px;
+            font-size: 1.1em;
         }
 
         .activity-btn {
-            padding: 10px 20px;
-            margin: 5px;
+            padding: 12px 24px;
+            margin: 6px;
             border: none;
-            border-radius: 20px;
+            border-radius: 25px;
             font-size: 1em;
             cursor: pointer;
             background: #ff6b9d;
             color: white;
             transition: transform 0.2s, background 0.2s;
+            font-weight: 500;
         }
 
         .activity-btn:hover {
@@ -219,20 +231,35 @@
         .activity-btn.selected {
             background: #4CAF50;
             transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
         }
 
         #submit-btn {
-            padding: 15px 30px;
-            margin: 20px auto 10px;
+            padding: 18px 40px;
+            margin: 25px auto 10px;
             border: none;
             border-radius: 30px;
             font-size: 1.2em;
             cursor: pointer;
-            background: #FF6B9D;
+            background: linear-gradient(135deg, #FF6B9D, #ff4785);
             color: white;
-            transition: transform 0.2s, background 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s;
             width: fit-content;
             display: block;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+        }
+
+        #submit-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
+        }
+
+        #submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
         #submit-btn:hover {
@@ -395,26 +422,32 @@
                 const photoGallery = document.getElementById('photo-gallery');
                 photoGallery.innerHTML = ''; // Clear previous photos
 
+                console.log("Place data:", place);
+                console.log("Photos available:", place.photos ? place.photos.length : 0);
+
                 if (place.photos && place.photos.length > 0) {
-                    place.photos.slice(0, 5).forEach(photo => {
+                    place.photos.slice(0, 5).forEach((photo, index) => {
                         const photoItem = document.createElement('div');
                         photoItem.className = 'photo-item';
                         
                         const img = document.createElement('img');
-                        img.src = photo.getUrl({ maxWidth: 200, maxHeight: 150 });
+                        img.src = photo.getUrl({ maxWidth: 300, maxHeight: 200 });
                         img.alt = place.name;
+                        img.onload = () => console.log(`Photo ${index} loaded successfully`);
+                        img.onerror = () => console.log(`Photo ${index} failed to load`);
                         
                         photoItem.appendChild(img);
                         photoGallery.appendChild(photoItem);
                     });
                 } else {
                     // If no photos available, show placeholder
+                    console.log("No photos available for this place");
                     const photoItem = document.createElement('div');
                     photoItem.className = 'photo-item';
                     photoItem.style.display = 'flex';
                     photoItem.style.alignItems = 'center';
                     photoItem.style.justifyContent = 'center';
-                    photoItem.innerHTML = '<span style="font-size: 12px; color: #666;">No photos</span>';
+                    photoItem.innerHTML = '<span style="font-size: 12px; color: #666;">No photos available</span>';
                     photoGallery.appendChild(photoItem);
                 }
             });
@@ -510,8 +543,11 @@
             submitBtn.disabled = true;
             submitBtn.textContent = "Sending...";
 
+            console.log("Sending email with params:", templateParams);
+
             emailjs.send('service_0wfrgyg', 'template_4okig0b', templateParams)
-                .then(function() {
+                .then(function(response) {
+                    console.log('SUCCESS!', response.status, response.text);
                     submitBtn.textContent = "Sent! 💕";
                     submitBtn.style.background = "#4CAF50";
                     document.getElementById('result').innerHTML = 
@@ -519,16 +555,17 @@
                     setTimeout(() => {
                         submitBtn.textContent = "Send it to me! 💕";
                         submitBtn.disabled = false;
-                        submitBtn.style.background = "#FF6B9D";
+                        submitBtn.style.background = "linear-gradient(135deg, #FF6B9D, #ff4785)";
                     }, 3000);
                 }, function(error) {
                     console.error('FAILED...', error);
                     submitBtn.textContent = "Failed to send";
                     submitBtn.style.background = "#f44336";
+                    alert("Failed to send. Please try again.");
                     setTimeout(() => {
                         submitBtn.textContent = "Send it to me! 💕";
                         submitBtn.disabled = false;
-                        submitBtn.style.background = "#FF6B9D";
+                        submitBtn.style.background = "linear-gradient(135deg, #FF6B9D, #ff4785)";
                     }, 3000);
                 });
         }
