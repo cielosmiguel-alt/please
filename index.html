@@ -16,11 +16,10 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             text-align: center;
             padding: 20px;
             transition: background 0.1s ease;
-            overflow: hidden;
+            overflow-y: auto;
         }
         h1 { color: #4a2545; font-size: 2.2em; padding: 0 10px; }
         .btn {
@@ -148,7 +147,7 @@
         }
 
         #form-container.active {
-            display: flex;
+            display: flex !important;
         }
 
         .left-column {
@@ -165,6 +164,7 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
+            min-height: 400px;
         }
 
         .input-group {
@@ -223,7 +223,7 @@
 
         #submit-btn {
             padding: 15px 30px;
-            margin: 20px 10px 10px;
+            margin: 20px auto 10px;
             border: none;
             border-radius: 30px;
             font-size: 1.2em;
@@ -231,8 +231,8 @@
             background: #FF6B9D;
             color: white;
             transition: transform 0.2s, background 0.2s;
-            align-self: center;
             width: fit-content;
+            display: block;
         }
 
         #submit-btn:hover {
@@ -464,7 +464,7 @@
             questionBox.style.display = 'none';
             document.getElementById('result').innerHTML =
                 "Yehheyy ano kayang gusto nito.. 😉";
-            document.getElementById('form-container').classList.add('active');
+            document.getElementById('form-container').style.display = 'flex';
             if (map) {
                 google.maps.event.trigger(map, 'resize');
             }
@@ -477,7 +477,7 @@
             warningBox.style.display = 'none';
             document.getElementById('result').innerHTML =
                 "Yehheyy ano kayang gusto nito..😉";
-            document.getElementById('form-container').classList.add('active');
+            document.getElementById('form-container').style.display = 'flex';
             if (map) {
                 google.maps.event.trigger(map, 'resize');
             }
