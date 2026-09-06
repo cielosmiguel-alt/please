@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question for you</title>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyANvNUM_DGQeJqUdMHNpX_gD2yAGQVYl-Q&libraries=places&callback=initMap"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #ffdde1, #ee9ca7);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            transition: background 0.1s ease;
+            overflow: hidden;
+        }
+        h1 { color: #4a2545; font-size: 2.2em; padding: 0 10px; }
+        .btn {
+            padding: 15px 30px;
+            margin: 10px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        #yes { background: #4CAF50; color: white; }
+        #no {
+            background: #f44336;
+            color: white;
+            position: relative;
+        }
+        #result {
+            font-size: 1.6em;
+            margin-top: 20px;
+            color: #4a2545;
+            animation: popIn 0.4s ease;
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        body.warning { animation: flashBW 0.15s infinite; }
+        @keyframes flashBW {
+            0%   { background: #fff; }
+            50%  { background: #000; }
+            100% { background: #fff; }
+        }
+        #warning-box { display: none; }
+        #warning-box h1 {
+            color: red;
+            font-size: 2.2em;
+            text-shadow: 0 0 10px red;
+        }
+        #timer {
+            font-size: 3em;
+            color: red;
+            font-weight: bold;
+            text-shadow: 0 0 15px red;
+        }
+        #final-yes {
+            display: none;
+            background: #4CAF50;
+            color: white;
+            font-size: 1.3em;
+            padding: 16px 34px;
+        }
+
+        #final-input {
+            display: none;
+            padding: 12px 15px;
+            border-radius: 20px;
+            border: 2px solid #ee9ca7;
+            font-size: 1em;
+            width: 100%;
+            max-width: 280px;
+            outline: none;
+            margin-top: 15px;
+        }
+
+        #map-container {
+            display: none;
+            width: 100%;
+            max-width: 400px;
+            height: 300px;
+            margin-top: 20px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        #place-search {
+            display: none;
+            width: 100%;
+            max-width: 350px;
+            padding: 12px 15px;
+            border-radius: 20px;
+            border: 2px solid #ee9ca7;
+            font-size: 1em;
+            outline: none;
+            margin-top: 15px;
+        }
+
+        #activity-section {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .activity-btn {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 20px;
+            font-size: 1em;
+            cursor: pointer;
+            background: #ff6b9d;
+            color: white;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .activity-btn:hover {
+            transform: scale(1.05);
+            background: #ff4785;
+        }
+
+        .activity-btn.selected {
+            background: #4CAF50;
+            transform: scale(1.1);
+        }
+
+        #submit-btn {
+            display: none;
+            padding: 15px 30px;
+            margin: 20px 10px 10px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            background: #FF6B9D;
+            color: white;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        #submit-btn:hover {
+            transform: scale(1.05);
+            background: #ff4785;
+        }
+
+        #submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 1.5em; }
+            .btn { font-size: 1em; padding: 12px 24px; }
+            #result { font-size: 1.3em; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="question-box">
+        <h1 id="question-text">Will you go out with me? 💌</h1>
+        <button class="btn" id="yes" onclick="sayYes()">Yes</button>
+        <button class="btn" id="no" onmouseover="dodge()" ontouchstart="dodge()" onclick="handleNo()">No</button>
+    </div>
+
+    <div id="warning-box">
+        <h1> WARNING: BOMBA INCOMING </h1>
+        <div id="timer">5</div>
+        <p style="color:white; font-size:1.1em;">Inuubos mo pasensya ko..</p>
+        <button class="btn" id="final-yes" onclick="sigeNaNga()">sige na nga</button>
+    </div>
+
+    <div id="result"></div>
+    <input type="text" id="final-input" placeholder="anong gusto nang baby ko 😗">
+    <input type="text" id="place-search" placeholder="Saan mo gusto pumunta? >.<">
+    <div id="map-container">
+        <div id="map"></div>
+    </div>
+    <div id="activity-section">
+        <h3 style="color: #4a2545; margin-bottom: 15px;">Anong gusto mong gawin ;)? </h3>
+        <button class="activity-btn" onclick="selectActivity(this, 'eat')">Kain </button>
+        <button class="activity-btn" onclick="selectActivity(this, 'watch')">Movie</button>
+        <button class="activity-btn" onclick="selectActivity(this, 'walk')">Pasyal</button>
+        <button class="activity-btn" onclick="selectActivity(this, 'coffee')">Ice creammm</button>
+        <button class="activity-btn" onclick="selectActivity(this, 'beach')">relax sa beach</button>
+        <div id="selected-place" style="margin-top: 15px; color: #4a2545; font-weight: bold;"></div>
+    </div>
+    <button id="submit-btn" onclick="submitForm()">Send it to me! 💕</button>
+
+    <script>
+        // Initialize EmailJS
+        emailjs.init("P2XpI_8SYcNChNB_6");
+
+        let noCount = 0;
+        let dodgeCount = 0;
+        let map, autocomplete, marker;
+        let selectedActivity = '';
+        let selectedPlaceName = '';
+        const noBtn = document.getElementById('no');
+        const questionText = document.getElementById('question-text');
+        const questionBox = document.getElementById('question-box');
+        const warningBox = document.getElementById('warning-box');
+        const timerEl = document.getElementById('timer');
+
+        const messages = [
+            "Will you go out with me? 💌",
+            "Are you suuure? 🥺",
+            "Jheen naman ih 😔",
+        ];
+
+        const dodgeLimits = [11, 15, 20];
+
+        function initMap() {
+            const daet = { lat: 14.1167, lng: 122.9500 };
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: daet,
+                zoom: 14,
+                restriction: {
+                    latLngBounds: {
+                        north: 14.2,
+                        south: 14.0,
+                        east: 123.1,
+                        west: 122.8
+                    },
+                    strictBounds: true
+                }
+            });
+
+            autocomplete = new google.maps.places.Autocomplete(
+                document.getElementById('place-search'),
+                {
+                    bounds: new google.maps.LatLngBounds(
+                        new google.maps.LatLng(14.0, 122.8),
+                        new google.maps.LatLng(14.2, 123.1)
+                    ),
+                    componentRestrictions: { country: 'ph' }
+                }
+            );
+
+            autocomplete.addListener('place_changed', function() {
+                const place = autocomplete.getPlace();
+                if (!place.geometry || !place.geometry.location) {
+                    return;
+                }
+
+                if (marker) {
+                    marker.setMap(null);
+                }
+
+                marker = new google.maps.Marker({
+                    map: map,
+                    position: place.geometry.location,
+                    title: place.name
+                });
+
+                map.setCenter(place.geometry.location);
+                map.setZoom(16);
+
+                selectedPlaceName = place.name;
+                document.getElementById('selected-place').innerHTML = 
+                    `📍 ${place.name}<br> ${selectedActivity ? 'Activity: ' + selectedActivity : ''}`;
+            });
+        }
+
+        function selectActivity(btn, activity) {
+            document.querySelectorAll('.activity-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedActivity = activity;
+            
+            const activityNames = {
+                'eat': 'Eating',
+                'watch': 'Watching Movie',
+                'walk': 'Walking',
+                'coffee': 'Coffee',
+                'beach': 'Beach'
+            };
+            
+            if (selectedPlaceName) {
+                document.getElementById('selected-place').innerHTML = 
+                    `📍 ${selectedPlaceName}<br>Activity: ${activityNames[activity]}`;
+            }
+        }
+
+        function dodge() {
+            if (dodgeCount >= dodgeLimits[noCount]) {
+                return;
+            }
+            dodgeCount++;
+            const x = Math.random() * 200 - 100;
+            const y = Math.random() * 100 - 50;
+            noBtn.style.transform = `translate(${x}px, ${y}px)`;
+        }
+
+        function handleNo() {
+            noCount++;
+            dodgeCount = 0;
+            if (noCount < messages.length) {
+                questionText.innerText = messages[noCount];
+                noBtn.style.transform = 'translate(0,0)';
+            } else {
+                startWarning();
+            }
+        }
+
+        function sayYes() {
+            questionBox.style.display = 'none';
+            document.getElementById('result').innerHTML =
+                "Yehheyy ano kayang gusto nito.. 😉";
+            document.getElementById('final-input').style.display = 'inline-block';
+            document.getElementById('place-search').style.display = 'inline-block';
+            document.getElementById('map-container').style.display = 'block';
+            document.getElementById('activity-section').style.display = 'block';
+            document.getElementById('submit-btn').style.display = 'inline-block';
+            if (map) {
+                google.maps.event.trigger(map, 'resize');
+            }
+        }
+
+        function sigeNaNga() {
+            stopAlarm();
+            document.body.classList.remove('warning');
+            document.body.style.background = 'linear-gradient(135deg, #ffdde1, #ee9ca7)';
+            warningBox.style.display = 'none';
+            document.getElementById('result').innerHTML =
+                "Yehheyy ano kayang gusto nito..😉";
+            document.getElementById('final-input').style.display = 'inline-block';
+            document.getElementById('place-search').style.display = 'inline-block';
+            document.getElementById('map-container').style.display = 'block';
+            document.getElementById('activity-section').style.display = 'block';
+            document.getElementById('submit-btn').style.display = 'inline-block';
+            if (map) {
+                google.maps.event.trigger(map, 'resize');
+            }
+        }
+
+        function submitForm() {
+            const userInput = document.getElementById('final-input').value;
+            const placeSearch = document.getElementById('place-search').value;
+            
+            if (!userInput.trim()) {
+                alert("Please fill in what you want! 😊");
+                return;
+            }
+
+            const activityNames = {
+                'eat': 'Eating',
+                'watch': 'Watching Movie',
+                'walk': 'Walking',
+                'coffee': 'Coffee',
+                'beach': 'Beach'
+            };
+
+            const templateParams = {
+                user_input: userInput,
+                place_name: selectedPlaceName || placeSearch || "Not specified",
+                activity: selectedActivity ? activityNames[selectedActivity] : "Not specified"
+            };
+
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Sending...";
+
+            emailjs.send('service_0wfrgyg', 'template_4okig0b', templateParams)
+                .then(function() {
+                    submitBtn.textContent = "Sent!";
+                    submitBtn.style.background = "#4CAF50";
+                    document.getElementById('result').innerHTML = 
+                        "Thank you! I received your response! 💕";
+                    setTimeout(() => {
+                        submitBtn.textContent = "Sind mona";
+                        submitBtn.disabled = false;
+                        submitBtn.style.background = "#FF6B9D";
+                    }, 3000);
+                }, function(error) {
+                    console.error('FAILED...', error);
+                    submitBtn.textContent = "Failed to send";
+                    submitBtn.style.background = "#f44336";
+                    setTimeout(() => {
+                        submitBtn.textContent = "Sind mona";
+                        submitBtn.disabled = false;
+                        submitBtn.style.background = "#FF6B9D";
+                    }, 3000);
+                });
+        }
+
+        // --- Warning sequence ---
+        let audioCtx, oscillator, gainNode, alarmInterval;
+
+        function startAlarm() {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            oscillator = audioCtx.createOscillator();
+            gainNode = audioCtx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.type = 'sawtooth';
+            gainNode.gain.value = 0.15;
+            oscillator.start();
+
+            let up = true;
+            alarmInterval = setInterval(() => {
+                oscillator.frequency.setValueAtTime(up ? 880 : 440, audioCtx.currentTime);
+                up = !up;
+            }, 300);
+        }
+
+        function stopAlarm() {
+            if (alarmInterval) clearInterval(alarmInterval);
+            if (oscillator) {
+                try { oscillator.stop(); } catch(e) {}
+            }
+            if (audioCtx) audioCtx.close();
+        }
+
+        function startWarning() {
+            questionBox.style.display = 'none';
+            warningBox.style.display = 'block';
+            document.body.classList.add('warning');
+            startAlarm();
+
+            let countdown = 5;
+            timerEl.innerText = countdown;
+            const countdownInterval = setInterval(() => {
+                countdown--;
+                timerEl.innerText = countdown;
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    stopAlarm();
+                    document.body.classList.remove('warning');
+                    document.body.style.background = '#000';
+                    document.getElementById('final-yes').style.display = 'inline-block';
+                    timerEl.innerText = "💣";
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
