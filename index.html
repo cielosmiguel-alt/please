@@ -76,23 +76,26 @@
         }
 
         #final-input {
-            display: none;
             padding: 12px 15px;
             border-radius: 20px;
             border: 2px solid #ee9ca7;
             font-size: 1em;
             width: 100%;
-            max-width: 280px;
             outline: none;
-            margin-top: 15px;
+        }
+
+        #place-search {
+            padding: 12px 15px;
+            border-radius: 20px;
+            border: 2px solid #ee9ca7;
+            font-size: 1em;
+            width: 100%;
+            outline: none;
         }
 
         #map-container {
-            display: none;
             width: 100%;
-            max-width: 400px;
             height: 300px;
-            margin-top: 20px;
             border-radius: 15px;
             overflow: hidden;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
@@ -104,10 +107,7 @@
         }
 
         #place-photos {
-            display: none;
             width: 100%;
-            max-width: 400px;
-            margin-top: 15px;
             border-radius: 15px;
             overflow: hidden;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
@@ -137,6 +137,48 @@
             object-fit: cover;
         }
 
+        #form-container {
+            display: none;
+            width: 100%;
+            max-width: 900px;
+            margin-top: 20px;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        #form-container.active {
+            display: flex;
+        }
+
+        .left-column {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .right-column {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-group label {
+            color: #4a2545;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
         #place-search {
             display: none;
             width: 100%;
@@ -150,9 +192,11 @@
         }
 
         #activity-section {
-            display: none;
-            margin-top: 20px;
             text-align: center;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
         .activity-btn {
@@ -178,7 +222,6 @@
         }
 
         #submit-btn {
-            display: none !important;
             padding: 15px 30px;
             margin: 20px 10px 10px;
             border: none;
@@ -188,6 +231,8 @@
             background: #FF6B9D;
             color: white;
             transition: transform 0.2s, background 0.2s;
+            align-self: center;
+            width: fit-content;
         }
 
         #submit-btn:hover {
@@ -205,6 +250,14 @@
             h1 { font-size: 1.5em; }
             .btn { font-size: 1em; padding: 12px 24px; }
             #result { font-size: 1.3em; }
+            
+            #form-container {
+                flex-direction: column;
+            }
+            
+            .left-column, .right-column {
+                min-width: 100%;
+            }
         }
     </style>
 </head>
@@ -224,26 +277,44 @@
     </div>
 
     <div id="result"></div>
-    <input type="text" id="final-input" placeholder="anong gusto nang baby ko 😗">
-    <input type="text" id="place-search" placeholder="Saan mo gusto pumunta? >.<">
-    <div id="map-container">
-        <div id="map"></div>
-    </div>
-    <div id="place-photos">
-        <div class="photo-gallery" id="photo-gallery">
-            <!-- Photos will be added here dynamically -->
+    
+    <div id="form-container">
+        <div class="left-column">
+            <div class="input-group">
+                <label>Anong gusto nang baby ko 😗</label>
+                <input type="text" id="final-input" placeholder="Your answer here...">
+            </div>
+            
+            <div class="input-group">
+                <label>Saan mo gusto pumunta? >.<</label>
+                <input type="text" id="place-search" placeholder="Search for a place...">
+            </div>
+            
+            <div id="map-container">
+                <div id="map"></div>
+            </div>
+            
+            <div id="place-photos">
+                <div class="photo-gallery" id="photo-gallery">
+                    <!-- Photos will be added here dynamically -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="right-column">
+            <div id="activity-section">
+                <h3 style="color: #4a2545; margin-bottom: 15px;">Anong gusto mong gawin ;)? </h3>
+                <button class="activity-btn" onclick="selectActivity(this, 'eat')">Kain </button>
+                <button class="activity-btn" onclick="selectActivity(this, 'watch')">Movie</button>
+                <button class="activity-btn" onclick="selectActivity(this, 'walk')">Pasyal</button>
+                <button class="activity-btn" onclick="selectActivity(this, 'coffee')">Ice creammm</button>
+                <button class="activity-btn" onclick="selectActivity(this, 'beach')">relax sa beach</button>
+                <div id="selected-place" style="margin-top: 15px; color: #4a2545; font-weight: bold;"></div>
+            </div>
+            
+            <button id="submit-btn" onclick="submitForm()">Send it to me! 💕</button>
         </div>
     </div>
-    <div id="activity-section">
-        <h3 style="color: #4a2545; margin-bottom: 15px;">Anong gusto mong gawin ;)? </h3>
-        <button class="activity-btn" onclick="selectActivity(this, 'eat')">Kain </button>
-        <button class="activity-btn" onclick="selectActivity(this, 'watch')">Movie</button>
-        <button class="activity-btn" onclick="selectActivity(this, 'walk')">Pasyal</button>
-        <button class="activity-btn" onclick="selectActivity(this, 'coffee')">Ice creammm</button>
-        <button class="activity-btn" onclick="selectActivity(this, 'beach')">relax sa beach</button>
-        <div id="selected-place" style="margin-top: 15px; color: #4a2545; font-weight: bold;"></div>
-    </div>
-    <button id="submit-btn" onclick="submitForm()">Send it to me! 💕</button>
 
     <script>
         // Initialize EmailJS when page loads
@@ -393,12 +464,7 @@
             questionBox.style.display = 'none';
             document.getElementById('result').innerHTML =
                 "Yehheyy ano kayang gusto nito.. 😉";
-            document.getElementById('final-input').style.display = 'inline-block';
-            document.getElementById('place-search').style.display = 'inline-block';
-            document.getElementById('map-container').style.display = 'block';
-            document.getElementById('place-photos').style.display = 'block';
-            document.getElementById('activity-section').style.display = 'block';
-            document.getElementById('submit-btn').style.display = 'inline-block';
+            document.getElementById('form-container').classList.add('active');
             if (map) {
                 google.maps.event.trigger(map, 'resize');
             }
@@ -411,12 +477,7 @@
             warningBox.style.display = 'none';
             document.getElementById('result').innerHTML =
                 "Yehheyy ano kayang gusto nito..😉";
-            document.getElementById('final-input').style.display = 'inline-block';
-            document.getElementById('place-search').style.display = 'inline-block';
-            document.getElementById('map-container').style.display = 'block';
-            document.getElementById('place-photos').style.display = 'block';
-            document.getElementById('activity-section').style.display = 'block';
-            document.getElementById('submit-btn').style.display = 'inline-block';
+            document.getElementById('form-container').classList.add('active');
             if (map) {
                 google.maps.event.trigger(map, 'resize');
             }
